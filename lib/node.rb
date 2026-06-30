@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Represents a node within a linked list.
 class Node
   attr_reader(:value)
   attr_accessor(:next_node)

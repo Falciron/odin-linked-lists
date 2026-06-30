@@ -1,23 +1,16 @@
+# frozen_string_literal: true
+
 require_relative 'node'
 
+# Represents a linked list data structure.
 class LinkedList
   def append(value)
-    new_node = Node.new(value)
-    
-    if @head.nil?
-      @head = new_node
-    end
-
-    unless @tail.nil?
-      @tail.next_node = new_node
-    end
-
-    @tail = new_node
+    insert_at(size, value)
   end
 
   def prepend(value)
     if @head.nil?
-      @head = Node.new(value) 
+      @head = Node.new(value)
     else
       previous_head = @head
       @head = Node.new(value, previous_head)
@@ -25,15 +18,9 @@ class LinkedList
   end
 
   def insert_at(index, *values)
-    raise IndexError if index < 0 || index > size
+    raise IndexError if index.negative? || index > size
 
-    prev_node = nil
-    next_node = @head
-
-    index.times do
-      prev_node = next_node
-      next_node = prev_node.next_node
-    end
+    prev_node, next_node = nodes_before_and_at_index(index)
 
     values.each do |value|
       new_node = Node.new(value, next_node)
@@ -45,15 +32,9 @@ class LinkedList
   end
 
   def remove_at(index)
-    raise IndexError if index < 0 || index >= size
+    raise IndexError if index.negative? || index >= size
 
-    prev_node = nil
-    current_node = @head
-    
-    index.times do
-      prev_node = current_node
-      current_node = current_node.next_node
-    end
+    prev_node, current_node = nodes_before_and_at_index(index)
 
     if prev_node.nil?
       @head = current_node.next_node
@@ -63,15 +44,15 @@ class LinkedList
   end
 
   def size
-    return 0 if @head.nil?
-
+    list_size = 0
     current_node = @head
-    size = 1
-    until current_node.next_node.nil? do
+
+    until current_node.nil?
       current_node = current_node.next_node
-      size += 1
+      list_size += 1
     end
-    size
+
+    list_size
   end
 
   def head
@@ -82,9 +63,7 @@ class LinkedList
     return nil if @head.nil?
 
     current_node = @head
-    until current_node.next_node.nil? do
-      current_node = current_node.next_node
-    end
+    current_node = current_node.next_node until current_node.next_node.nil?
     current_node.value
   end
 
@@ -93,7 +72,7 @@ class LinkedList
 
     current_node = @head
     index.times do
-      return nil if @head.next_node.nil?
+      return nil if current_node.next_node.nil?
 
       current_node = current_node.next_node
     end
@@ -110,39 +89,45 @@ class LinkedList
   end
 
   def contains?(value)
-    return nil if @head.nil?
-
-    current_node = @head
-    while current_node != nil do
-      return true if current_node.value == value
-      current_node = current_node.next_node
-    end
-    
-    false
+    !index(value).nil?
   end
 
   def index(value)
-    return nil if @head.nil?
-
     current_node = @head
     current_index = 0
-    while current_node != nil do
+    until current_node.nil?
       return current_index if current_node.value == value
+
       current_node = current_node.next_node
       current_index += 1
     end
-    
+
     nil
   end
 
   def to_s
     list_string = ''
-
     current_node = @head
-    until current_node.nil? do
+
+    until current_node.nil?
       list_string += "( #{current_node.value} ) -> "
       current_node = current_node.next_node
     end
-    list_string += 'nil'
+
+    "#{list_string}nil"
+  end
+
+  private
+
+  def nodes_before_and_at_index(index)
+    prev_node = nil
+    next_node = @head
+
+    index.times do
+      prev_node = next_node
+      next_node = prev_node.next_node
+    end
+
+    [prev_node, next_node]
   end
 end
