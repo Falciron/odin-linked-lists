@@ -25,11 +25,26 @@ class LinkedList
   end
 
   def insert_at(index, *values)
-    
   end
 
-  def remove_at(index, *values)
+  def remove_at(index)
+    raise IndexError if @head.nil?
+
+    prev_node = nil
+    current_node = @head
     
+    index.times do
+      prev_node = current_node
+      current_node = current_node.next_node
+
+      raise IndexError if current_node.nil?
+    end
+
+    if prev_node.nil?
+      @head = current_node.next_node
+    else
+      prev_node.next_node = current_node.next_node
+    end
   end
 
   def size
